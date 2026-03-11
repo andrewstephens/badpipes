@@ -5,8 +5,15 @@ my internet dropping at home.
 
 ## Install
 
+Download a prebuilt binary from the [releases page](../../releases) or build from source:
+
 ```bash
 cargo install --path .
+```
+
+**macOS**: If you get "cannot be opened because the developer cannot be verified", run:
+```bash
+xattr -d com.apple.quarantine badpipes
 ```
 
 ## Usage
