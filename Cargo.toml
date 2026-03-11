@@ -3,6 +3,13 @@ name = "badpipes"
 version = "0.1.0"
 edition = "2024"
 
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1
+panic = "abort"
+opt-level = "z"
+
 [dependencies]
 clap = { version = "4", features = ["derive"] }
 chrono = "0.4"
