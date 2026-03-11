@@ -24,6 +24,8 @@ badpipes [OPTIONS]
 | `--target` | `-t` | Target address (`ip:port`), can be repeated | `8.8.8.8:53`, `1.1.1.1:53`, `8.8.4.4:53` |
 | `--once` | `-o` | Check once and exit (exit code 0 = connected, 1 = not) | Off |
 | `--timeout` | | Connection timeout in seconds | `3` |
+| `--count` | `-c` | Poll N times then exit | Unlimited |
+| `--quiet` | `-q` | Suppress stdout (only write to log file) | Off |
 
 ### Examples
 
@@ -45,6 +47,12 @@ badpipes --once && echo "online" || echo "offline"
 
 # Shorter timeout for fast failure
 badpipes --timeout 1
+
+# Run 10 polls then exit
+badpipes -c 10
+
+# Silent background logging
+badpipes -q -l connectivity.log
 ```
 
 ### Output

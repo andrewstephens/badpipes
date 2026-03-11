@@ -31,6 +31,14 @@ struct Args {
     /// Connection timeout in seconds
     #[arg(long, default_value_t = 3)]
     timeout: u64,
+
+    /// Poll N times then exit
+    #[arg(short, long)]
+    count: Option<u64>,
+
+    /// Suppress stdout (only write to log file)
+    #[arg(short, long)]
+    quiet: bool,
 }
 
 const DEFAULT_TARGETS: &[&str] = &["8.8.8.8:53", "1.1.1.1:53", "8.8.4.4:53"];
@@ -39,10 +47,13 @@ fn is_connected(target: &str, timeout: Duration) -> bool {
     TcpStream::connect_timeout(&target.parse().unwrap(), timeout).is_ok()
 }
 
-fn log_event(message: &str, log_file: &Option<PathBuf>) {
+fn log_event(message: &str, log_file: &Option<PathBuf>, quiet: bool) {
     let timestamp = Local::now().format("%Y-%m-%d %H:%M:%S");
     let line = format!("[{timestamp}] {message}");
-    println!("{line}");
+
+    if !quiet {
+        println!("{line}");
+    }
 
     if let Some(path) = log_file {
         if let Ok(mut file) = OpenOptions::new().create(true).append(true).open(path) {
@@ -63,11 +74,12 @@ fn main() {
     if args.once {
         let connected = targets.iter().any(|host| is_connected(host, timeout));
         let message = if connected { "Connected" } else { "Not connected" };
-        log_event(message, &args.log_file);
+        log_event(message, &args.log_file, args.quiet);
         process::exit(if connected { 0 } else { 1 });
     }
 
     let mut previous_state: Option<bool> = None;
+    let mut polls: u64 = 0;
 
     loop {
         let connected = targets.iter().any(|host| is_connected(host, timeout));
@@ -78,8 +90,15 @@ fn main() {
             } else {
                 "Not connected"
             };
-            log_event(message, &args.log_file);
+            log_event(message, &args.log_file, args.quiet);
             previous_state = Some(connected);
+        }
+
+        polls += 1;
+        if let Some(count) = args.count {
+            if polls >= count {
+                break;
+            }
         }
 
         sleep(Duration::from_secs(args.interval));
