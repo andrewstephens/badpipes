@@ -22,6 +22,8 @@ badpipes [OPTIONS]
 | `--interval` | `-i` | Poll interval in seconds | `5` |
 | `--log-file` | `-l` | Log file path (append mode) | None (stdout only) |
 | `--target` | `-t` | Target address (`ip:port`), can be repeated | `8.8.8.8:53`, `1.1.1.1:53`, `8.8.4.4:53` |
+| `--once` | `-o` | Check once and exit (exit code 0 = connected, 1 = not) | Off |
+| `--timeout` | | Connection timeout in seconds | `3` |
 
 ### Examples
 
@@ -37,6 +39,12 @@ badpipes -t 192.168.1.1:80
 
 # Monitor multiple custom targets
 badpipes -t 10.0.0.1:53 -t 10.0.0.2:53
+
+# One-shot check for scripting
+badpipes --once && echo "online" || echo "offline"
+
+# Shorter timeout for fast failure
+badpipes --timeout 1
 ```
 
 ### Output
@@ -49,4 +57,4 @@ badpipes -t 10.0.0.1:53 -t 10.0.0.2:53
 
 ## How it works
 
-badpipes attempts a TCP connection (with a 3-second timeout) to each target host. If **any** target is reachable, the status is "Connected". It only logs when the state transitions between connected and disconnected, making it easy to spot outages at a glance.
+badpipes attempts a TCP connection (with a configurable timeout, default 3s) to each target host. If **any** target is reachable, the status is "Connected". It only logs when the state transitions between connected and disconnected, making it easy to spot outages at a glance.
