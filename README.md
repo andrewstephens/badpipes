@@ -1,6 +1,7 @@
 # badpipes
 
-A simple lightweight network connectivity monitor. Polls TCP connectivity to one or more hosts and logs timestamped connect/disconnect events. Only prints when the state changes, so you get a clean log of outages rather than a wall of noise.
+A simple lightweight "network connectivity monitor". Polls TCP connectivity to one or more hosts and logs timestamped connect/disconnect events. Only prints when the state changes, so you get a clean log of outages rather than a wall of noise. I made this mainly to watch for 
+my internet dropping at home. 
 
 ## Install
 
