@@ -72,18 +72,20 @@ badpipes -j -l connectivity.json
 ### Output
 
 ```
-[2026-03-11 14:32:01] Connected
-[2026-03-11 14:35:47] Not connected
-[2026-03-11 14:36:12] Connected
+[2026-03-11 14:32:01] Connected — en0 (Wi-Fi)
+[2026-03-11 14:35:47] Not connected — en0 (Wi-Fi)
+[2026-03-11 14:36:12] Connected — en0 (Wi-Fi), en8 (Ethernet)
 ```
 
 With `--json`:
 ```json
-{"timestamp":"2026-03-11T14:32:01","status":"connected"}
-{"timestamp":"2026-03-11T14:35:47","status":"not_connected"}
-{"timestamp":"2026-03-11T14:36:12","status":"connected"}
+{"timestamp":"2026-03-11T14:32:01","status":"connected","interfaces":[{"name":"en0","type":"Wi-Fi"}]}
+{"timestamp":"2026-03-11T14:35:47","status":"not_connected","interfaces":[{"name":"en0","type":"Wi-Fi"}]}
+{"timestamp":"2026-03-11T14:36:12","status":"connected","interfaces":[{"name":"en0","type":"Wi-Fi"},{"name":"en8","type":"Ethernet"}]}
 ```
 
 ## How it works
 
 badpipes attempts a TCP connection (with a configurable timeout, default 3s) to each target host. If **any** target is reachable, the status is "Connected". It only logs when the state transitions between connected and disconnected, making it easy to spot outages at a glance.
+
+Each log entry includes the active network interfaces and their detected type (Wi-Fi, Ethernet, VPN/Tunnel, etc.). A new entry is also logged when interfaces change without a connectivity state change — for example, switching from Wi-Fi to Ethernet.

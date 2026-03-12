@@ -13,3 +13,4 @@ opt-level = "z"
 [dependencies]
 clap = { version = "4", features = ["derive"] }
 chrono = "0.4"
+if-addrs = "0.15"
