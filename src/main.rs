@@ -39,6 +39,10 @@ struct Args {
     /// Suppress stdout (only write to log file)
     #[arg(short, long)]
     quiet: bool,
+
+    /// Output in JSON format (NDJSON)
+    #[arg(short, long)]
+    json: bool,
 }
 
 const DEFAULT_TARGETS: &[&str] = &["8.8.8.8:53", "1.1.1.1:53", "8.8.4.4:53"];
@@ -47,9 +51,18 @@ fn is_connected(target: &str, timeout: Duration) -> bool {
     TcpStream::connect_timeout(&target.parse().unwrap(), timeout).is_ok()
 }
 
-fn log_event(message: &str, log_file: &Option<PathBuf>, quiet: bool) {
-    let timestamp = Local::now().format("%Y-%m-%d %H:%M:%S");
-    let line = format!("[{timestamp}] {message}");
+fn log_event(message: &str, log_file: &Option<PathBuf>, quiet: bool, json: bool) {
+    let line = if json {
+        let timestamp = Local::now().format("%Y-%m-%dT%H:%M:%S");
+        let status = match message {
+            "Connected" => "connected",
+            _ => "not_connected",
+        };
+        format!("{{\"timestamp\":\"{timestamp}\",\"status\":\"{status}\"}}")
+    } else {
+        let timestamp = Local::now().format("%Y-%m-%d %H:%M:%S");
+        format!("[{timestamp}] {message}")
+    };
 
     if !quiet {
         println!("{line}");
@@ -74,7 +87,7 @@ fn main() {
     if args.once {
         let connected = targets.iter().any(|host| is_connected(host, timeout));
         let message = if connected { "Connected" } else { "Not connected" };
-        log_event(message, &args.log_file, args.quiet);
+        log_event(message, &args.log_file, args.quiet, args.json);
         process::exit(if connected { 0 } else { 1 });
     }
 
@@ -90,7 +103,7 @@ fn main() {
             } else {
                 "Not connected"
             };
-            log_event(message, &args.log_file, args.quiet);
+            log_event(message, &args.log_file, args.quiet, args.json);
             previous_state = Some(connected);
         }
 

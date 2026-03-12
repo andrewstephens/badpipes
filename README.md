@@ -33,6 +33,7 @@ badpipes [OPTIONS]
 | `--timeout` | | Connection timeout in seconds | `3` |
 | `--count` | `-c` | Poll N times then exit | Unlimited |
 | `--quiet` | `-q` | Suppress stdout (only write to log file) | Off |
+| `--json` | `-j` | Output in JSON format (NDJSON) | Off |
 
 ### Examples
 
@@ -60,6 +61,12 @@ badpipes -c 10
 
 # Silent background logging
 badpipes -q -l connectivity.log
+
+# JSON output for piping into jq or other tools
+badpipes --once --json
+
+# Stream JSON to a file
+badpipes -j -l connectivity.json
 ```
 
 ### Output
@@ -68,6 +75,13 @@ badpipes -q -l connectivity.log
 [2026-03-11 14:32:01] Connected
 [2026-03-11 14:35:47] Not connected
 [2026-03-11 14:36:12] Connected
+```
+
+With `--json`:
+```json
+{"timestamp":"2026-03-11T14:32:01","status":"connected"}
+{"timestamp":"2026-03-11T14:35:47","status":"not_connected"}
+{"timestamp":"2026-03-11T14:36:12","status":"connected"}
 ```
 
 ## How it works
